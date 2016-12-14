@@ -11,6 +11,9 @@ A set of textbook grammars
 __all__ = ['g1', ]
 
 
+# TODO:
+# how should we deal with blanks like space?
+
 # Parsing Techs v2 page 23, a PS grammar
 g1 = (
     [
@@ -20,8 +23,8 @@ g1 = (
         ( ('Sentence', ), ('Name', ) ),
         ( ('Sentence', ), ('List', 'End', ) ),
         ( ('List', ), ('Name', ) ),
-        ( ('List', ), ('Name', ',', 'List', ) ),
-        ( (',', 'Name', 'End'), ('and', 'Name') ),
+        ( ('List', ), ('Name', ' , ', 'List', ) ),
+        ( (' , ', 'Name', 'End'), (' and ', 'Name') ),
     ],
     'Sentence'
 )

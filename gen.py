@@ -71,8 +71,6 @@ def generate_sentences(grammar):
                 nsf = replace(sf, slc, right_side)
                 q = [nsf] + q
 
-        print q
-
 
 @to_list
 def find_match(parent, child):
