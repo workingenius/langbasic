@@ -14,6 +14,8 @@
 
 from functools import wraps
 
+from models import is_terminal
+
 
 # ################
 # utils
@@ -35,14 +37,11 @@ def output(sf):
     print ''.join(sf)
 
 
-# ################
-# models
-
-
-def is_terminal(token):
-    assert isinstance(token, basestring)
-    if token.lower() == token: return True
-    else: return False
+def replace(lst, slice, sub_list):
+    assert isinstance(lst, list)
+    l = lst[:]
+    l[slice] = list(sub_list)
+    return l
 
 
 # ################
@@ -72,6 +71,8 @@ def generate_sentences(grammar):
                 nsf = replace(sf, slc, right_side)
                 q = [nsf] + q
 
+        print q
+
 
 @to_list
 def find_match(parent, child):
@@ -85,11 +86,4 @@ def find_match(parent, child):
         c = parent[slc]
         if tuple(c) == tuple(child):
             yield slc
-
-
-def replace(lst, slice, sub_list):
-    assert isinstance(lst, list)
-    l = lst[:]
-    l[slice] = list(sub_list)
-    return l
 
