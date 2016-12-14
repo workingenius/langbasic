@@ -11,4 +11,7 @@ rules = [
     ( ('Digit', ), ('7', ) ),
 ]
 
-start_rules = 'Sum'
+start_symbol = 'Sum'
+
+grammar = (rules, start_symbol)
+
