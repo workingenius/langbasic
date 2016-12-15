@@ -1,3 +1,8 @@
+from __future__ import unicode_literals
+
+from models import G
+
+
 rules = [
     ( ('Sum', ), ('Digit',) ),
     ( ('Sum', ), ('Sum', '+', 'Digit') ),
@@ -13,5 +18,5 @@ rules = [
 
 start_symbol = 'Sum'
 
-grammar = (rules, start_symbol)
+grammar = G(rules, start_symbol)
 

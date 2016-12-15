@@ -1,29 +1,14 @@
+from __future__ import unicode_literals
+
 """
 Implementation predicates of chomsky hierachy
 """
 
-from models import is_terminal
+from models import is_terminal, is_grammar
 
 
 # ################
 # epsilon-free types
-
-
-def is_grammar(grammar):
-    try:
-        assert isinstance(grammar, tuple)
-        rules, start_symbol = grammar
-        assert isinstance(rules, list)
-        assert isinstance(start_symbol, basestring)
-        for r in rules:
-            assert isinstance(r, tuple)
-            assert len(r) == 2
-            assert not is_terminal(r[0])
-            assert len(r[1]) > 0  # epsilon-free
-    except Exception:
-        return False
-    finally:
-        return True
 
 
 def is_type0(grammar):

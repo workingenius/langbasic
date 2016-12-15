@@ -1,16 +1,4 @@
-"""
-    Symbol  : string
-        Terminal     : Symbol all lowercase
-        NonTerminal : Symbol started with uppercase letter
-        StartSymbol : Symbol
-    Side    : tuple
-    Rule    : (Side, Side)
-    Rules   : [Rule, ...]
-    Grammar : (Rules, StartSymbol)
-
-    SententialForm : [Symbol, ...]
-    Sentence        : [NonTerminal, ...]
-"""
+from __future__ import unicode_literals
 
 from functools import wraps
 
