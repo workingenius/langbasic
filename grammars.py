@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 A set of textbook grammars
 """
 
-from models import grammar
+from models import cons_grammar
 
 # TODO:
 # type grammar with literals are really annoying
@@ -19,7 +19,7 @@ __all__ = ['g1', 'g2', ]
 # how should we deal with blanks like space?
 
 # Parsing Techs v2 page 23, a PS grammar
-g1 = grammar(
+g1 = cons_grammar(
     [
         ( ('Name', ), ('tom', ) ),
         ( ('Name', ), ('dick', ) ),
@@ -35,7 +35,7 @@ g1 = grammar(
 
 
 # Parsing Techs v2 figure 2.6, Monotonic grammar for a[n]b[n]c[n]
-g2 = grammar(
+g2 = cons_grammar(
     [
         ( ('S', ), ('a', 'b', 'c', ) ),
         ( ('S', ), ('a', 'S', 'Q', ) ),

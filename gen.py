@@ -2,34 +2,12 @@ from __future__ import unicode_literals
 
 from functools import wraps
 
-from models import is_terminal
-
-
-# ################
-# utils
-
-
-def to_list(func):
-    """
-    :func
-        a callable that return a iter
-    """
-    @wraps(func)
-    def nf(*args, **kwargs):
-        return list(func(*args, **kwargs))
-    return nf
+from models import *
 
 
 def output(sf):
     assert isinstance(sf, list)
     print ''.join(sf)
-
-
-def replace(lst, slice, sub_list):
-    assert isinstance(lst, list)
-    l = lst[:]
-    l[slice] = list(sub_list)
-    return l
 
 
 # ################
@@ -40,36 +18,29 @@ def generate_sentences(grammar):
     """
     generate all legal sentences with the given grammar
     """
-    rules, start_symbol = grammar
-    q = [[start_symbol]]
+
+    assert is_grammar(grammar)
+    ruleset, start_symbol = get_ruleset(grammar), get_start_symbol(grammar)
+    q = [cons_sentential_form([start_symbol])]
 
     while True:
-        # sentential form
         sf = q.pop()
 
-        if all(map(is_terminal, sf)):
+        if is_sentence(sf):
             output(sf)
             continue
 
-        for rule in rules:
-            left_side, right_side = rule
+        for rule in list_rules(ruleset):
+            ls, rs = left_side(rule), right_side(rule)
 
-            slices = find_match(sf, left_side)
+            slices = find_match(sf, ls)
             for slc in slices:
-                nsf = replace(sf, slc, right_side)
+                nsf = replace_side(sf, slc, rs)
                 q = [nsf] + q
 
 
-@to_list
-def find_match(parent, child):
-    assert isinstance(parent, list)
-    assert isinstance(child, (list, tuple))
-    l = len(child)
-    assert l > 0
+if __name__ == '__main__':
+    from agrammar import grammar
 
-    for i in range(len(parent)):
-        slc = slice(i, i+l)
-        c = parent[slc]
-        if tuple(c) == tuple(child):
-            yield slc
+    generate_sentences(grammar)
 

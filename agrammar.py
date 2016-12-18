@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from models import G
+from models import cons_grammar
 
 
 rules = [
@@ -18,5 +18,5 @@ rules = [
 
 start_symbol = 'Sum'
 
-grammar = G(rules, start_symbol)
+grammar = cons_grammar(rules, start_symbol)
 
