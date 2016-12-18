@@ -7,9 +7,6 @@ A set of textbook grammars
 from models import cons_grammar
 
 # TODO:
-# type grammar with literals are really annoying
-
-# TODO:
 # consider future situation in which rules should have name or id like "1", "2a", "2b" etc.
 
 __all__ = ['g1', 'g2', ]
@@ -21,13 +18,13 @@ __all__ = ['g1', 'g2', ]
 # Parsing Techs v2 page 23, a PS grammar
 g1 = cons_grammar(
     [
-        ( ('Name', ), ('tom', ) ),
-        ( ('Name', ), ('dick', ) ),
-        ( ('Name', ), ('harry', ) ),
-        ( ('Sentence', ), ('Name', ) ),
-        ( ('Sentence', ), ('List', 'End', ) ),
-        ( ('List', ), ('Name', ) ),
-        ( ('List', ), ('Name', ' , ', 'List', ) ),
+        ( ('Name', ), ('tom', ),
+                      ('dick', ),
+                      ('harry', ) ),
+        ( ('Sentence', ), ('Name', ),
+                          ('List', 'End', ) ),
+        ( ('List', ), ('Name', ),
+                      ('Name', ' , ', 'List', ) ),
         ( (' , ', 'Name', 'End'), (' and ', 'Name') ),
     ],
     'Sentence'
@@ -37,8 +34,8 @@ g1 = cons_grammar(
 # Parsing Techs v2 figure 2.6, Monotonic grammar for a[n]b[n]c[n]
 g2 = cons_grammar(
     [
-        ( ('S', ), ('a', 'b', 'c', ) ),
-        ( ('S', ), ('a', 'S', 'Q', ) ),
+        ( ('S', ), ('a', 'b', 'c', ),
+                   ('a', 'S', 'Q', ) ),
         ( ('b', 'Q', 'c', ), ('b', 'b', 'c', 'c', ) ),
         ( ('c', 'Q', ), ('Q', 'c', ) ),
     ],

@@ -6,7 +6,7 @@ from .symbol import is_symbol, \
     is_non_terminal
 from .side import cons_side, is_side, \
     is_epsilon
-from .rule import is_rule, \
+from .rule import cons_rule, is_rule, \
     left_side, right_side
 from .ruleset import cons_ruleset, is_ruleset, \
     list_rules

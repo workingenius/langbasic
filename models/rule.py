@@ -4,6 +4,12 @@ from .helper import precon
 from .side import is_side, is_epsilon
 
 
+def cons_rule(left_side, right_side):
+    assert is_side(left_side) and not is_epsilon(left_side)
+    assert is_side(right_side)
+    return (left_side, right_side)
+
+
 def is_rule(obj):
     if not isinstance(obj, tuple): return False
     if len(obj) != 2: return False

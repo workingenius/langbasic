@@ -1,13 +1,18 @@
 from __future__ import unicode_literals
 
-from .rule import is_rule
+from .side import cons_side
+from .rule import cons_rule, is_rule
 from .helper import precon
 
 
-def cons_ruleset(rule_list):
-    for rule in rule_list:
-        assert is_rule(rule), '{} is not a valid rule'.format(rule)
-    return rule_list
+def cons_ruleset(data):
+    ruleset = []
+    for entry in data:
+        ls = entry[0]
+        for side in entry[1:]:
+            rs = cons_side(side)
+            ruleset.append(cons_rule(ls, rs))
+    return ruleset
 
 
 def is_ruleset(obj):
