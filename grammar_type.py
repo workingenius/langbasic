@@ -96,3 +96,6 @@ if __name__ == '__main__':
     assert is_type1(gs.g2)
     assert not is_type2(gs.g2)
 
+    assert is_type2(gs.g3)
+    assert not is_type3(gs.g3)
+

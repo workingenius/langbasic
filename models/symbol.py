@@ -15,14 +15,14 @@ def is_symbol(obj):
 
 @precon(is_symbol, 'a terminal should be a symbol')
 def is_terminal(obj):
-    if isinstance(obj, basestring) and obj[0].lower() == obj:
+    if isinstance(obj, basestring) and obj[0].lower() == obj[0]:
         return True
     else: return False
 
 
 @precon(is_symbol, 'a non-terminal should be a symbol')
 def is_non_terminal(obj):
-    if isinstance(obj, basestring) and obj[0].lower() != obj:
+    if isinstance(obj, basestring) and obj[0].lower() != obj[0]:
         return True
     else: return False
 

@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from functools import wraps
+from time import sleep
 
 from models import *
 
@@ -37,6 +38,10 @@ def generate_sentences(grammar):
             for slc in slices:
                 nsf = replace_side(sf, slc, rs)
                 q = [nsf] + q
+                break
+
+        # print q
+        # sleep(0.1)
 
 
 if __name__ == '__main__':
