@@ -23,11 +23,70 @@ class SententialFrom(object):
     def is_sentence(self):
         return len(self.symbol_list) and all(map(is_terminal, self.symbol_list))
 
+    def clone(self):
+        return SententialFrom(self.symbol_list[:])
+
+    def find_match(self, rule):
+        """
+        Find left :side of rule in sentential form :self
+
+        :return
+            List of slices that match.
+        """
+        assert is_rule(rule)
+
+        sl = self.symbol_list
+        side = left_side(rule)
+
+        if is_epsilon(side): return []
+        l = len(side)
+        retval = []
+        for i in range(len(sl)):
+            slc = slice(i, i + l)
+            c = sl[slc]
+            if cons_side(c) == side:
+                retval.append( slc )
+        return retval
+
+    def replace_side(self, slice, rule):
+        """
+        Replace sentential form :self, at position :slice,
+        to right side of :rule
+        """
+        assert is_rule(rule)
+        sf = self.clone()
+        sf.symbol_list[slice] = right_side(rule)
+        return sf
+
     def __unicode__(self):
         return ''.join(self.symbol_list)
 
 
-cons_sentential_form = SententialFrom
+class SententialFormWithPT(SententialFrom):
+    """
+    Sentential form with production tree
+    """
+    def __init__(self, symbol_list, pt=None):
+        super(self.__class__, self).__init__(symbol_list)
+        self.pt = pt or []
+
+    def clone(self):
+        return SententialFormWithPT(self.symbol_list[:], self.pt[:])
+
+    def replace_side(self, slice, rule):
+        sf = super(self.__class__, self).replace_side(slice, rule)
+        sf.pt.append( (slice.start, rule) )
+        return sf
+
+    def __unicode__(self):
+        return ''.join(self.symbol_list) + '\n' + unicode(self.pt)
+
+
+def cons_sentential_form(symbol_list, trace=True):
+    if trace:
+        return SententialFormWithPT(symbol_list)
+    else:
+        return SententialFrom(symbol_list)
 
 
 def is_sentential_form(obj):
@@ -42,20 +101,7 @@ def find_match(sf, rule):
         List of slices that match.
     """
     assert is_sentential_form(sf)
-    assert is_rule(rule)
-
-    sf = sf.symbol_list
-    side = left_side(rule)
-
-    if is_epsilon(side): return []
-    l = len(side)
-    retval = []
-    for i in range(len(sf)):
-        slc = slice(i, i + l)
-        c = sf[slc]
-        if cons_side(c) == side:
-            retval.append( slc )
-    return retval
+    return sf.find_match(rule)
 
 
 def replace_side(sf, slice, rule):
@@ -64,12 +110,7 @@ def replace_side(sf, slice, rule):
     to right side of :rule
     """
     assert is_sentential_form(sf)
-    assert is_rule(rule)
-    sf = sf.symbol_list
-    side = right_side(rule)
-    sf = sf[:]
-    sf[slice] = side
-    return cons_sentential_form(sf)
+    return sf.replace_side(slice, rule)
 
 
 # ###
