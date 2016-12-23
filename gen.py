@@ -34,9 +34,9 @@ def generate_sentences(grammar):
         for rule in list_rules(ruleset):
             ls, rs = left_side(rule), right_side(rule)
 
-            slices = find_match(sf, ls)
+            slices = find_match(sf, rule)
             for slc in slices:
-                nsf = replace_side(sf, slc, rs)
+                nsf = replace_side(sf, slc, rule)
                 q = [nsf] + q
                 break
 
@@ -45,7 +45,7 @@ def generate_sentences(grammar):
 
 
 if __name__ == '__main__':
-    from agrammar import grammar
+    from grammars import g1
 
-    generate_sentences(grammar)
+    generate_sentences(g1)
 

@@ -9,7 +9,7 @@ from models import cons_grammar, epsilon
 # TODO:
 # consider future situation in which rules should have name or id like "1", "2a", "2b" etc.
 
-__all__ = ['g1', 'g2', ]
+__all__ = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', ]
 
 
 # TODO:

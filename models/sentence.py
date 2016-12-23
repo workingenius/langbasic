@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
 
 from .symbol import is_symbol, is_terminal
-from .side import cons_side, is_side, is_epsilon
+from .side import cons_side, is_epsilon
+from .rule import is_rule, left_side, right_side
 
 
 # ###
@@ -19,16 +20,16 @@ def is_sentential_form(obj):
     return True
 
 
-def find_match(sf, side):
+def find_match(sf, rule):
     """
-    :sf is A valid sentential form
+    Find left :side of rule in sentential form :sf
 
     :return
         List of slices that match.
-        If side is epsilon, return [].
     """
     assert is_sentential_form(sf)
-    assert is_side(side)
+    assert is_rule(rule)
+    side = left_side(rule)
     if is_epsilon(side): return []
     l = len(side)
     retval = []
@@ -40,9 +41,14 @@ def find_match(sf, side):
     return retval
 
 
-def replace_side(sf, slice, side):
+def replace_side(sf, slice, rule):
+    """
+    Replace sentential form :sf, at position :slice,
+    to right side of :rule
+    """
     assert is_sentential_form(sf)
-    assert is_side(side)
+    assert is_rule(rule)
+    side = right_side(rule)
     sf = sf[:]
     sf[slice] = side
     return sf
