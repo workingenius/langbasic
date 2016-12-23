@@ -14,4 +14,4 @@ from .grammar import cons_grammar, is_grammar, \
     get_ruleset, get_start_symbol
 from .sentence import cons_sentential_form, is_sentential_form, \
     find_match, replace_side, \
-    cons_sentence, is_sentence
+    is_sentence

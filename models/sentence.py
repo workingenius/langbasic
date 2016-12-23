@@ -9,15 +9,29 @@ from .rule import is_rule, left_side, right_side
 # sentential form
 
 
-def cons_sentential_form(symbol_list):
-    assert is_sentential_form(symbol_list)
-    return symbol_list
+class SententialFrom(object):
+    def __init__(self, symbol_list):
+        assert self.verify(symbol_list)
+        self.symbol_list = symbol_list
+
+    def verify(self, symbol_list):
+        obj = symbol_list
+        if not isinstance(obj, list): return False
+        if not all(map(is_symbol, obj)): return False
+        return True
+
+    def is_sentence(self):
+        return len(self.symbol_list) and all(map(is_terminal, self.symbol_list))
+
+    def __unicode__(self):
+        return ''.join(self.symbol_list)
+
+
+cons_sentential_form = SententialFrom
 
 
 def is_sentential_form(obj):
-    if not isinstance(obj, list): return False
-    if not all(map(is_symbol, obj)): return False
-    return True
+    return isinstance(obj, SententialFrom)
 
 
 def find_match(sf, rule):
@@ -29,7 +43,10 @@ def find_match(sf, rule):
     """
     assert is_sentential_form(sf)
     assert is_rule(rule)
+
+    sf = sf.symbol_list
     side = left_side(rule)
+
     if is_epsilon(side): return []
     l = len(side)
     retval = []
@@ -48,22 +65,16 @@ def replace_side(sf, slice, rule):
     """
     assert is_sentential_form(sf)
     assert is_rule(rule)
+    sf = sf.symbol_list
     side = right_side(rule)
     sf = sf[:]
     sf[slice] = side
-    return sf
+    return cons_sentential_form(sf)
 
 
 # ###
 # sentence
 
 
-def cons_sentence(symbol_list):
-    assert is_sentence(symbol_list)
-    return symbol_list
-
-
 def is_sentence(obj):
-    if not isinstance(obj, list): return False
-    return all(map(is_terminal, obj))
-
+    return isinstance(obj, SententialFrom) and obj.is_sentence()

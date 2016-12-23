@@ -7,8 +7,7 @@ from models import *
 
 
 def output(sf):
-    assert isinstance(sf, list)
-    print ''.join(sf)
+    print unicode(sf)
 
 
 # ################
