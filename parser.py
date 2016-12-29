@@ -2,16 +2,16 @@
 """
 unger parser first version
 """
-#TODO: grammar with loop
 #TODO: duplicate question will cause infinte recursion
 #TODO: visualize production tree
 #TODO: with epsilon
+#TODO: ambiguity
 #TODO: sementic
 
 from __future__ import unicode_literals
 from pprint import pprint
 
-from grammars import g3, g4
+from grammars import g3, g4, g7
 from models.sentence import SententialFrom
 from models.grammar import get_ruleset, get_start_symbol
 from models.ruleset import list_rules
@@ -30,6 +30,12 @@ from models.symbol import is_terminal, is_non_terminal
 
 def _divide(sentence, part_num):
     """
+    If we have m cups, numbered from 1 to m,
+    and n marbles, numbered from 1 to n, we have to find all possible partitions such that
+    each cup contains at least one marble, the numbers of the marbles in any cup are con-
+    secutive, and any cup does not contain lower-numbered marbles than any marble in a
+    lower-numbered cup.
+
     :return all partitions of the sentence, as a list
     """
     assert len(sentence) >= part_num, \
@@ -102,14 +108,29 @@ def unger_parse(grammar, sentence):
                     return None
         return pt
 
+
+    parsing = set()
+
+
     def parse(start_symbol, sentence):
-        assert isinstance(sentence, list)
+        assert isinstance(sentence, (list, tuple))
+
+        q = (start_symbol, tuple(sentence))
+        if q in parsing:
+            return None
+        parsing.add(q)
+
+        pt = None
+
         for situation in all_situations(start_symbol, sentence):
             # construct production tree with child production tree
             side, parts = situation
             pt = cons_pt(start_symbol, side, parts)
             if pt:
-                return pt
+                break
+
+        parsing.remove(q)
+        return pt
             
     return parse(get_start_symbol(grammar), sentence.symbol_list)
 
@@ -120,5 +141,13 @@ if __name__ == '__main__':
     pprint( unger_parse(g3, SententialFrom(['tom', ' , ' , 'dick', ' , ', 'tom', ' and ', 'harry'])) )
     pprint( unger_parse(g3, SententialFrom(['tom', ' , ' , 'dick', ' , ', 'tom', ' , ', 'harry'])) )  # None
 
+    pprint( unger_parse(g7, SententialFrom(['s'] * 4)) )
+
     # TODO
     # pprint( unger_parse(g4, SententialFrom(['up', 'down', 'down', 'down', 'up', 'up'])) )
+
+
+#! 一些体会:
+# 单步调试时n是很重要的,相比于s
+# 编程是描述算法的过程. 一步步将算法变得更具体;
+# 每一个步骤都只涉及有限的, 大脑足够处理的数量的模块(5个到7个), 会更容易组成程序; 这样, 递归的思想是非常强大的

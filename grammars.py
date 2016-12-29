@@ -106,3 +106,13 @@ g6 = cons_grammar(
     ],
     'Sum'
 )
+
+
+# a simple grammar with loop
+g7 = cons_grammar(
+    [
+        ( ('S', ), ('B', ), ('S', 's'), ('s', ) ),
+        ( ('B', ), ('S', ) )
+    ],
+    'S'
+)
