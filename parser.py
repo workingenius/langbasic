@@ -4,7 +4,6 @@ unger parser first version
 """
 #TODO: duplicate question will cause infinte recursion
 #TODO: visualize production tree
-#TODO: with epsilon
 #TODO: ambiguity
 #TODO: sementic
 
@@ -109,17 +108,18 @@ def unger_parse(grammar, sentence):
         for rule in rules:
             rs = right_side(rule)
             if is_epsilon(rs):
-                yield (rs, sentence)
+                yield (rs, [sentence])
             else:
                 partitions = _divide_with_e(sentence, len(rs))
                 for partition in partitions:
                     yield (rs, partition)
 
     def cons_pt(start_symbol, side, parts):
+        assert len(parts) != 0
         pt = [start_symbol]
 
-        if is_epsilon(side) and len(parts) == 0:
-            return pt
+        if is_epsilon(side):
+            return pt if len(parts[0]) == 0 else None
 
         symbols = side
         for symbol, part in zip(symbols, parts):
