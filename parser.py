@@ -5,10 +5,13 @@ unger parser first version
 #TODO: grammar with loop
 #TODO: duplicate question will cause infinte recursion
 #TODO: visualize production tree
+#TODO: with epsilon
 #TODO: sementic
 
 from __future__ import unicode_literals
-from grammars import g3
+from pprint import pprint
+
+from grammars import g3, g4
 from models.sentence import SententialFrom
 from models.grammar import get_ruleset, get_start_symbol
 from models.ruleset import list_rules
@@ -87,7 +90,7 @@ def unger_parse(grammar, sentence):
         pt = [start_symbol]
         for symbol, part in zip(symbols, parts):
             if is_terminal(symbol):
-                if symbol != part[0]:
+                if symbol != part[0] or len(part) != 1:
                     return None
                 else:
                     pt.append(symbol)
@@ -112,4 +115,10 @@ def unger_parse(grammar, sentence):
 
 
 if __name__ == '__main__':
-    print unger_parse(g3, SententialFrom(['tom', ' , ' , 'dick', ' and ', 'harry']))
+    pprint( unger_parse(g3, SententialFrom(['harry'])) )
+    pprint( unger_parse(g3, SententialFrom(['tom', ' , ' , 'dick', ' and ', 'harry'])) )
+    pprint( unger_parse(g3, SententialFrom(['tom', ' , ' , 'dick', ' , ', 'tom', ' and ', 'harry'])) )
+    pprint( unger_parse(g3, SententialFrom(['tom', ' , ' , 'dick', ' , ', 'tom', ' , ', 'harry'])) )  # None
+
+    # TODO
+    # pprint( unger_parse(g4, SententialFrom(['up', 'down', 'down', 'down', 'up', 'up'])) )
