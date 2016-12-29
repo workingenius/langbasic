@@ -18,6 +18,7 @@ from models.ruleset import list_rules
 from models.rule import left_side, right_side
 from models.side import cons_side
 from models.symbol import is_terminal, is_non_terminal
+from models import is_epsilon
 
 
 # Q:
@@ -58,6 +59,29 @@ def _divide(sentence, part_num):
 #         print d
 
 
+def _divide_with_e(sentence, part_num):
+    """
+    same as divide, allow empty cups.
+    """
+    assert part_num != 0, \
+        'len(sentence): {}, part_num: {}'.format(len(sentence), part_num)
+    if len(sentence) == 0:
+        yield [[]] * part_num
+    elif part_num == 1:
+        yield [sentence]
+    else:
+        for i in range(len(sentence) + 1):
+            for sub_div in _divide_with_e(sentence[i:], part_num - 1):
+                r = [sentence[:i]]
+                r.extend(sub_div)
+                yield r
+
+
+# if __name__ == '__main__':
+#     for d in _divide_with_e(range(6), 4):
+#         print d
+
+
 def unger_parse(grammar, sentence):
     # unger parser
     # parse一个sentence,给出一个grammar和一个sentence,找到production tree
@@ -84,19 +108,23 @@ def unger_parse(grammar, sentence):
         rules      = _sub_rule_list(start_symbol)
         for rule in rules:
             rs = right_side(rule)
-            if len(sentence) < len(rs):
-                continue
-            partitions = _divide(sentence, len(rs))
-            for partition in partitions:
-                yield (rs, partition)
+            if is_epsilon(rs):
+                yield (rs, sentence)
+            else:
+                partitions = _divide_with_e(sentence, len(rs))
+                for partition in partitions:
+                    yield (rs, partition)
 
     def cons_pt(start_symbol, side, parts):
-        #import pdb; pdb.set_trace()
-        symbols = side
         pt = [start_symbol]
+
+        if is_epsilon(side) and len(parts) == 0:
+            return pt
+
+        symbols = side
         for symbol, part in zip(symbols, parts):
             if is_terminal(symbol):
-                if symbol != part[0] or len(part) != 1:
+                if len(part) != 1 or symbol != part[0]:
                     return None
                 else:
                     pt.append(symbol)
@@ -106,6 +134,7 @@ def unger_parse(grammar, sentence):
                     pt.append(sub_pt)
                 else:
                     return None
+
         return pt
 
 
@@ -143,8 +172,8 @@ if __name__ == '__main__':
 
     pprint( unger_parse(g7, SententialFrom(['s'] * 4)) )
 
-    # TODO
-    # pprint( unger_parse(g4, SententialFrom(['up', 'down', 'down', 'down', 'up', 'up'])) )
+    pprint( unger_parse(g4, SententialFrom(['up', 'down', 'down', 'down', 'up', 'up'])) )  # None
+    pprint( unger_parse(g4, SententialFrom(['up ', 'down ', 'down ', 'down ', 'up ', 'up '])) )
 
 
 #! 一些体会:
