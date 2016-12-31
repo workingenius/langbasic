@@ -1,4 +1,6 @@
+# -*- coding:utf8 -*-
 from __future__ import unicode_literals
+from pprint import pprint
 from models import *
 
 
@@ -47,46 +49,79 @@ def symbols_generating_epsilon(rule_list):
     
 
 def _cyk_recognise_step(rules, sentence, recog_table, sub_length, epsilon_symbols):
-    def match(recog_table, symbols, start_index, substring_length, epsilon_symbols):
-        """
-        :epsilon_symbols is a set containing symbols that will possibly generate epsilon
-        """
+    """
+    :epsilon_symbols is a set containing symbols that will possibly generate epsilon
+    """
+    def _match(recog_table, symbols, start_index, substring_length):
         assert isinstance(symbols, (tuple, list))
+
         if is_epsilon(symbols):
-            return
-        elif len(symbols) == 1:
-            # TODO
-            if recog_table.contains( (substring_length, start_index), symbols[0]):
-                yield [(symbols[0], substring_length)]
-            else:
-                return
+            return 
+        assert len(symbols) > 0
+
+        sym = symbols[0]
+        substring = sentence[start_index: start_index + substring_length]
+        if len(symbols) == 1:
+            if is_non_terminal(sym):
+                if sym in epsilon_symbols:
+                    if len(substring) == 0:
+                        yield [(sym, 0)]
+                    else:
+                        return
+                elif recog_table.contains( (substring_length, start_index), symbols[0]):
+                    yield [(sym, substring_length)]
+                else:
+                    return
+            elif is_terminal(sym):
+                if sym == substring[0] and len(substring) == 1:
+                    yield [(sym, 1)]
+                else:
+                    return
         else:
-            sym = symbols[0]
-            if sym in epsilon_symbols:
-                # sub_derivation
-                for sd in match(recog_table, symbols[1:],
-                        start_index, substring_length, epsilon_symbols):
-                    yield [(symbols[0], 0)] + sd
-            for sssl in range(1, substring_length):
-                # sssl for sub-sub-string length
-                for sd in match(recog_table, symbols[1:], start_index + sssl,
-                        substring_length - sssl, epsilon_symbols):
-                    yield [(symbols[0], sssl)] + sd
+            if is_non_terminal(sym):
+                if sym in epsilon_symbols:
+                    for sd in _match(recog_table, symbols[1:],
+                            start_index, substring_length):
+                        # sd for sub_derivation
+                        yield [(sym, 0)] + sd
+                for sssl in range(1, substring_length):
+                    # sssl for sub-sub-string length
+                    if recog_table.contains( (sssl, start_index), sym):
+                        for sd in _match(recog_table, symbols[1:], start_index + sssl,
+                                substring_length - sssl):
+                            yield [(sym, sssl)] + sd
+                    else:
+                        return
+            elif is_terminal(sym):
+                if sym == substring[0]:
+                    for sd in _match(recog_table, symbols[1:], start_index + 1,
+                            substring_length - 1):
+                        yield [(sym, 1)] + sd
+                else:
+                    return
 
+    def match(*args, **kwargs):
+        """
+        Make match result hashable
+        """
+        for d in _match(*args, **kwargs):
+            yield tuple(d)
 
-    for start_idx in range(len(sentence) - sub_length):
+    for start_idx in range(len(sentence) - sub_length + 1):
         has_new = False
         for rule in rules:
             start_symbol, symbols = left_side(rule)[0], right_side(rule)
+            # print symbols, start_idx, sub_length
             for derivation in match(recog_table, symbols, start_idx, sub_length):
-                is_new = recog_table.insert( (sub_length, start_idx), derivation )
+                # print derivation
+                is_new = recog_table.insert( (sub_length, start_idx), start_symbol, derivation )
                 has_new = has_new or is_new
         while has_new:
             has_new = False
             for rule in rules:
                 start_symbol, symbols = left_side(rule)[0], right_side(rule)
                 for derivation in match(recog_table, symbols, start_idx, sub_length):
-                    is_new = recog_table.insert( (sub_length, start_idx), derivation )
+                    is_new = recog_table.insert( (sub_length, start_idx), start_symbol, derivation )
                     has_new = has_new or is_new
 
     return recog_table
@@ -108,7 +143,8 @@ if __name__ == '__main__':
             ( ('A', ), ('C', '@', 'C', ), ('B', '#', 'B', ), ('D', '$', 'D' ), ('E', '^', 'E', ) ),
             ( ('B', ), epsilon ),   # epsilon directly  -> true
             ( ('C', ), ('B', ) ),   # epsilon in chain rule  -> true
-            ( ('D', ), ('D', 'd', ) ),   # has ref to epsilon but not chain rule  -> false
+            ( ('D', ), ('D', 'd', ),   # has ref to epsilon but not chain rule  -> false
+                ('B', 'd', ) ),
             ( ('E', ), ('C', 'C', 'B', ) ),   # all symbol can be epsilon  -> true
         ],
         'A'
@@ -117,4 +153,13 @@ if __name__ == '__main__':
 
 
     sen = cons_sentential_form(['@'], trace=False)
-    print cyk_recognise(g, sen)
+    pprint(cyk_recognise(g, sen))
+
+    sen = cons_sentential_form('d d $ d'.split(), trace=False)
+    pprint(cyk_recognise(g, sen))
+
+
+#! 函数参数太多,且中间总是变化的时候,容易出错;这说明每个procedure的概念,用途不清晰.原料和产出不清晰.
+#! 用function generate, 使用方法应当用for. 这点经常出错
+#! range的结尾是不生成的,这点总是出错
+#! recog table的数据结构代表的意义还是不清晰
