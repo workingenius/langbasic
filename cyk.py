@@ -28,6 +28,11 @@ class RecognationTable(dict):
                     return True
             return False
 
+    def fetch(self, substring_index, start_symbol):
+        if not (substring_index in self):
+            return []
+        return [v[1] for v in self[substring_index] if v[0] == start_symbol]
+
 
 def symbols_generating_epsilon(rule_list):
     """
@@ -137,6 +142,36 @@ def cyk_recognise(grammar, sentence):
     return rec_t
 
 
+def cons_pt(recog_table, start_index, senlen, start_symbol):
+    def cons_sub_pts(derivation, start_index):
+        assert len(derivation) > 0
+        child_sym, sub_len = derivation[0]
+        if len(derivation) == 1:
+            if is_non_terminal(child_sym):
+                for r in cons_pt(recog_table, start_index, sub_len, child_sym):
+                    yield [r]
+            elif is_terminal(child_sym):
+                yield [child_sym]
+        else:
+            si = start_index
+            if is_non_terminal(child_sym):
+                for r in cons_pt(recog_table, si, sub_len, child_sym):
+                    for rest_sub_pts in cons_sub_pts(derivation[1:], si + sub_len):
+                        yield [r] + rest_sub_pts
+            elif is_terminal(child_sym):
+                assert sub_len == 1
+                for rest_sub_pts in cons_sub_pts(derivation[1:], si + 1):
+                    yield [child_sym] + rest_sub_pts
+
+    if senlen == 0:
+        # epsilons are not in recog table
+        yield [start_symbol]
+    else:
+        for derivation in recog_table.fetch( (senlen, start_index), start_symbol):
+            for sub_pts in cons_sub_pts(derivation, start_index):
+                yield [start_symbol] + sub_pts
+
+
 if __name__ == '__main__':
     g = cons_grammar(
         [ 
@@ -153,10 +188,18 @@ if __name__ == '__main__':
 
 
     sen = cons_sentential_form(['@'], trace=False)
-    pprint(cyk_recognise(g, sen))
+    rec_t = cyk_recognise(g, sen)
+    print '#######'
+    for pt in cons_pt(rec_t, 0, len(sen.symbol_list), get_start_symbol(g)):
+        pprint(pt)
+    print 
 
     sen = cons_sentential_form('d d $ d'.split(), trace=False)
-    pprint(cyk_recognise(g, sen))
+    rec_t = cyk_recognise(g, sen)
+    print '#######'
+    for pt in cons_pt(rec_t, 0, len(sen.symbol_list), get_start_symbol(g)):
+        pprint(pt)
+    print 
 
 
 #! 函数参数太多,且中间总是变化的时候,容易出错;这说明每个procedure的概念,用途不清晰.原料和产出不清晰.
